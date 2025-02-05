@@ -1,0 +1,58 @@
+#include <reg51.h>
+
+void LCD_CMD(unsigned char CMD);
+void LCD_DATA(unsigned char DATA);
+void DELAY_ms(unsigned char j);
+
+sbit RS= P3^7;
+sbit RW= P3^6;
+sbit EN= P3^5;
+
+void main()
+{
+	P2=0x00;		//Port used to connect LCD datapins D0-D7
+	LCD_CMD(0x01); 		//Clear the display screen
+	DELAY_ms(5);
+	LCD_CMD(0x0E);		//Display on, cursor blinking
+	DELAY_ms(5);
+	LCD_CMD(0x38);		//2 lines, 5x8 matrix, 8bit mode
+	DELAY_ms(5);
+	LCD_CMD(0x80);		//Force the cursor to the beginning of the 1st line
+	DELAY_ms(5);
+	LCD_DATA('S');
+	LCD_DATA('E');
+	LCD_DATA('N');
+	LCD_DATA('S');
+	LCD_DATA('E');
+	while(1);
+}
+
+void LCD_CMD(unsigned char CMD)
+{
+	P2=CMD;
+	RS=0;
+	RW=0;
+	EN=1;
+	DELAY_ms(5);
+	EN=0;	
+}
+
+void LCD_DATA(unsigned char DATA)
+{
+	P2=DATA;
+	RS=1;
+	RW=0;
+	EN=1;
+	DELAY_ms(5);
+	EN=0;	
+}
+
+void DELAY_ms(unsigned int j)
+{
+	unsigned int i;
+	for(;j>0;j--)
+	{
+		for(i=250;i>0;i--);
+		for(i=250;i>0;i--);
+	}
+}

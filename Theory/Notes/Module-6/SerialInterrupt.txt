@@ -1,0 +1,81 @@
+program 2
+
+#include <reg51.h>
+void main()
+{
+   TMOD=0x20;                                //Choosing Timer mode
+   TH1=0xFD;                                   //Selecting Baud Rate
+   SCON=0x50;                               //Serial mode selection
+   TR1=1;
+   IE=0x90;                                      //Enabling Serial Interrupt
+   while(1);
+   }
+void ser_intr(void)interrupt 4        //Subroutine for Interrupt
+ {
+  char c;
+  c=SBUF;  
+  IE=0x00;                      //Turning off interrupt to prevent recursion
+   if(c==0x0d)
+   {
+   P0=~P0;                                
+   SBUF='A';                 //Sending back "ACK" as   Acknowledgement 
+   while(TI==0);
+   TI=0;
+   SBUF='C';
+   while(TI==0);
+   TI=0;
+   SBUF='K';
+    while(TI==0);
+    TI=0;
+    }
+   RI=0;
+   IE=0x90;                            //Reactivating the interrupt
+  }
+
+program 3
+#include <reg51.h>
+
+sbit SW =P1^7;
+sbit IND =P1^0;
+sbit WAVE =P2^5;
+
+void timer0(void) interrupt 1
+{
+WAVE=~WAVE; //toggle pin
+}
+void ser_intr(void)interrupt 4        //Subroutine for Interrupt
+ {
+  char c;
+  c=SBUF;  
+  IE=0x00;                      //Turning off interrupt to prevent recursion
+   if(c==0x20)
+   {                                
+   SBUF='A';                 //Sending back "ACK" as   Acknowledgement 
+   while(TI==0);
+   TI=0;
+    }
+   RI=0;
+   IE=0x90;                            //Reactivating the interrupt
+  }
+void main()
+{
+
+SW=1; //make switch input
+TH1=-3;
+TMOD=0x22;
+TH0=0xA4; //TH0=-92
+SCON=0x50;
+	TR0=1;
+	TR1=1;
+IE=0x92; //enable interrupt for timer 0
+
+while (1)
+
+{
+
+IND=SW; //send switch to LED
+
+}
+
+}
+
